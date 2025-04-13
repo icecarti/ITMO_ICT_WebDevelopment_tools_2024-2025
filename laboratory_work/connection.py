@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from sqlmodel import SQLModel, Session, create_engine
 
 load_dotenv()
-
 db_url = os.getenv("DB_CONN")
 engine = create_engine(db_url, echo=True)
 

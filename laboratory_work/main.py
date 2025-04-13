@@ -1,11 +1,10 @@
-from fastapi import FastAPI, Depends
-from sqlmodel import select
-from typing_extensions import TypedDict
+import uvicorn
+from fastapi import FastAPI
 from contextlib import asynccontextmanager
-
-from connection import init_db, get_session
-from models.models import *
-from models.public_models import *
+from connection import init_db
+from auth_endpoints import auth_router
+from profile_endpoints import profile_router
+from book_endpoints import book_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -13,11 +12,9 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+app.include_router(auth_router)
+app.include_router(profile_router)
+app.include_router(book_router)
 
-@app.get("/")
-def root():
-    return {"status": "API is alive"}
-
-@app.get("/profiles", response_model=list[ProfilePublic])
-def list_profiles(session=Depends(get_session)):
-    return session.exec(select(Profile)).all()
+if __name__ == "__main__":
+    uvicorn.run(app, host="127.0.0.1", port=8000, reload=True)
