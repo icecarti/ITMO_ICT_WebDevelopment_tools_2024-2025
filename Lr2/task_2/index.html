@@ -471,7 +471,70 @@
         <li class="md-nav__item">
   <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
-      Сравнительная таблица
+      Результаты замеров
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Общая архитектура
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-parserpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Файл parser.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-dbpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Файл db.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-threadpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Файл thread.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-multiprocesspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Файл multiprocess.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-asyncpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Файл async.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Выводы
     </span>
   </a>
   
@@ -531,7 +594,70 @@
         <li class="md-nav__item">
   <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
-      Сравнительная таблица
+      Результаты замеров
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Общая архитектура
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-parserpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Файл parser.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-dbpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Файл db.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-threadpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Файл thread.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-multiprocesspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Файл multiprocess.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-asyncpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Файл async.py
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      7. Выводы
     </span>
   </a>
   
@@ -564,25 +690,114 @@
 <li>Запустите параллельный парсинг для каждой программы и сохраните данные в базу данных.</li>
 <li>Замерьте время выполнения каждой программы и сравните результаты.</li>
 </ol>
-<h2 id="_3">Сравнительная таблица</h2>
+<h2 id="_3">Результаты замеров</h2>
 <table>
 <thead>
 <tr>
-<th></th>
-<th style="text-align: right;">Async</th>
-<th style="text-align: right;">Multiprocessing</th>
-<th style="text-align: right;">Threading</th>
+<th>Подход</th>
+<th>Воркеры</th>
+<th>Сохранено книг</th>
+<th>Время, сек</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Parser</strong></td>
-<td style="text-align: right;">сек</td>
-<td style="text-align: right;">сек</td>
-<td style="text-align: right;">сек</td>
+<td>Threading</td>
+<td>4 потока</td>
+<td>100</td>
+<td>8.63</td>
+</tr>
+<tr>
+<td>Multiprocessing</td>
+<td>4 процесса</td>
+<td>100</td>
+<td>7.93</td>
+</tr>
+<tr>
+<td>Asyncio + aiohttp</td>
+<td>4 корутины</td>
+<td>100</td>
+<td>7.86</td>
 </tr>
 </tbody>
 </table>
+<h2 id="1">1. Общая архитектура</h2>
+<ol>
+<li><strong>Генерация страниц поиска</strong> — 100 записей, шаг 25 (<code>tpl = "/ebooks/search/?…&amp;start_index={}"</code>).  </li>
+<li><strong>Сбор ссылок на книги</strong> (функция <code>parse_book_links</code>).  </li>
+<li><strong>Параллельный обход</strong> полученного списка ссылок:  <ul>
+<li>запрос HTML  </li>
+<li><code>parse_book_details</code> → словарь с полями  </li>
+<li><code>INSERT … ON CONFLICT DO NOTHING</code> в Postgres  </li>
+</ul>
+</li>
+<li><strong>Агрегация результатов</strong> и замер времени.</li>
+</ol>
+<h2 id="2-parserpy">2. Файл <code>parser.py</code></h2>
+<ul>
+<li><strong>SessionPool</strong>  <ul>
+<li>Буферизует <code>requests.Session()</code> с авто-ретраями (HTTP 500, 502, 503, 504).  </li>
+<li>Методы: <code>get_session()</code> / <code>put_session()</code>.  </li>
+</ul>
+</li>
+<li><strong>parse_book_links(html)</strong>  <ul>
+<li>Находит все <code>&lt;li class="booklink"&gt;</code> → возвращает полный URL.  </li>
+</ul>
+</li>
+<li><strong>parse_book_details(html)</strong>  <ul>
+<li>Ищет <code>&lt;table id="about_book_table"&gt;</code>, проходит по <code>&lt;tr&gt;</code>, извлекает заголовки и значения (ссылки vs. plain text).  </li>
+<li>Защищён от отсутствия таблицы.</li>
+</ul>
+</li>
+</ul>
+<h2 id="3-dbpy">3. Файл <code>db.py</code></h2>
+<ul>
+<li><strong>prepare_book_record(raw, source)</strong>  <ul>
+<li>Отбирает поля <code>title</code>, <code>author</code>, <code>release_date</code>, <code>subject</code> → парсит дату <code>%b %d, %Y</code> → возвращает кортеж <code>(author, title, date, genre, source)</code>.  </li>
+</ul>
+</li>
+<li><strong>AsyncDBFiller</strong> (<code>asyncpg</code>)  <ul>
+<li><code>connect()</code> → создаёт пул  </li>
+<li><code>add_book(...)</code> → <code>INSERT … ON CONFLICT DO NOTHING</code>  </li>
+<li><code>disconnect()</code> → закрывает пул  </li>
+</ul>
+</li>
+<li><strong>SyncDBFiller</strong> (<code>psycopg2</code>)  <ul>
+<li><code>add_book(...)</code> — то же, но с блокировкой <code>lock</code> для потоков.</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-threadpy">4. Файл <code>thread.py</code></h2>
+<ul>
+<li><strong>Параметры</strong>: 4 потока, 100 записей  </li>
+<li>Сбор ссылок: один пул сессий, все страницы поиска обрабатываются последовательно.  </li>
+<li><code>worker(links)</code> в каждом потоке:  <ol>
+<li>берёт сессию из пула  </li>
+<li>делает <code>GET</code> → парсит детали → <code>filler.add_book(...)</code>  </li>
+<li>возвращает сессию обратно в пул и возвращает число успешно сохранённых  </li>
+</ol>
+</li>
+</ul>
+<h2 id="5-multiprocesspy">5. Файл <code>multiprocess.py</code></h2>
+<ul>
+<li><strong>Параметры</strong>: до 4 процессов (или <code>cpu_count()</code>), 100 записей  </li>
+<li><strong>init_links()</strong>: в основном процессе собирает все ссылки на книги.  </li>
+<li>Каждый процесс в <code>parse_and_save(chunk)</code> создаёт свой <code>SyncDBFiller</code> и свою <code>requests.Session()</code>.  </li>
+</ul>
+<h2 id="6-asyncpy">6. Файл <code>async.py</code></h2>
+<ul>
+<li><strong>Параметры</strong>: 4 корутины, 100 записей  </li>
+<li>Одна <code>ClientSession()</code> на весь цикл.  </li>
+<li><code>init_links(session)</code> асинхронно запрашивает страницы поиска и собирает ссылки.  </li>
+<li><code>worker(chunk, session, filler)</code> по очереди делает <code>await session.get()</code> → парсит → <code>await filler.add_book(...)</code>.  </li>
+<li>Сбор результатов через <code>await asyncio.gather(...)</code></li>
+</ul>
+<h2 id="7">7. Выводы</h2>
+<ul>
+<li><strong>Asyncio + aiohttp</strong>: показал наилучший результат (7.86 с). Это подтверждает, что для массового I/O-bound парсинга асинхронная модель обеспечивает минимальные накладные расходы на переключение контекста.  </li>
+<li><strong>Multiprocessing</strong>: занял второе место (7.93 с). Процессы дают реальный параллелизм без GIL, но накладные расходы на создание и переключение процессов делают его чуть медленнее асинхронного подхода.  </li>
+<li><strong>Threading</strong>: самый простой шаблон, но уступил (8.63 с). GIL и блокирующий I/O ограничивают скорость, хотя для небольших задач и простоты реализации его всё ещё можно использовать.  </li>
+</ul>
 
 
 
